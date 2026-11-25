@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { Activity, ShieldAlert, Cpu, Eye, Radio, Sparkles, LogOut, ChevronDown } from "lucide-react";
-import { useAuth } from "@/lib/auth";
+import { useAuth } from "../lib/auth";
 
 interface HeaderProps {
   isConnected: boolean;

@@ -1,16 +1,16 @@
 "use client";
 
 import React, { useState } from "react";
-import { AuthProvider, useAuth } from "@/lib/auth";
-import { LoginPage } from "@/components/LoginPage";
-import { useTelematicsSocket } from "@/lib/socket";
-import { Header } from "@/components/Header";
-import { FleetStats } from "@/components/FleetStats";
-import { FleetMap } from "@/components/FleetMap";
-import { VisionAIDashcam } from "@/components/VisionAIDashcam";
-import { AlertsFeed } from "@/components/AlertsFeed";
-import { VehicleDetailsModal } from "@/components/VehicleDetailsModal";
-import { Vehicle } from "@/lib/types";
+import { AuthProvider, useAuth } from "../lib/auth";
+import { LoginPage } from "../components/LoginPage";
+import { useTelematicsSocket } from "../lib/socket";
+import { Header } from "../components/Header";
+import { FleetStats } from "../components/FleetStats";
+import { FleetMap } from "../components/FleetMap";
+import { VisionAIDashcam } from "../components/VisionAIDashcam";
+import { AlertsFeed } from "../components/AlertsFeed";
+import { VehicleDetailsModal } from "../components/VehicleDetailsModal";
+import { Vehicle } from "../lib/types";
 import { Eye } from "lucide-react";
 
 function CommandCenterContent() {

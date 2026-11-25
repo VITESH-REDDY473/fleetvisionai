@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { AuthProvider, useAuth } from "@/lib/auth";
-import { LoginPage } from "@/components/LoginPage";
+import { AuthProvider, useAuth } from "../../lib/auth";
+import { LoginPage } from "../../components/LoginPage";
 import { useRouter } from "next/navigation";
 
 function LoginContent() {

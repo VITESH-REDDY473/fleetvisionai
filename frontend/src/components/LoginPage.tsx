@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useAuth, DEMO_ACCOUNTS } from "@/lib/auth";
+import { useAuth, DEMO_ACCOUNTS } from "../lib/auth";
 import { Eye, EyeOff, ShieldCheck, Lock, Mail, ArrowRight, Sparkles, Radio, Cpu, CheckCircle } from "lucide-react";
 
 export const LoginPage: React.FC = () => {
