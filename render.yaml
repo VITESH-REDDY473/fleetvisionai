@@ -7,18 +7,12 @@ services:
     buildCommand: npm install
     startCommand: npm start
     plan: free
-    envVars:
-      - key: NODE_ENV
-        value: production
 
   # 2. Frontend Next.js Operations Command Center
   - type: web
     name: fleetvisionai-frontend
     runtime: node
     rootDir: frontend
-    buildCommand: npm install && npm run build
+    buildCommand: npm install --include=dev && npm run build
     startCommand: npm start
     plan: free
-    envVars:
-      - key: NODE_ENV
-        value: production
