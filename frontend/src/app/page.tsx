@@ -6,15 +6,18 @@ import { LoginPage } from "../components/LoginPage";
 import { useTelematicsSocket } from "../lib/socket";
 import { Header } from "../components/Header";
 import { FleetStats } from "../components/FleetStats";
-import { FleetMap } from "../components/FleetMap";
-import { VisionAIDashcam } from "../components/VisionAIDashcam";
-import { AlertsFeed } from "../components/AlertsFeed";
+import { Module1VehicleDriver } from "../components/Module1VehicleDriver";
+import { Module2TrackingTrips } from "../components/Module2TrackingTrips";
+import { Module3AlertsMaintenanceReports } from "../components/Module3AlertsMaintenanceReports";
+import { DriverPortal } from "../components/DriverPortal";
 import { VehicleDetailsModal } from "../components/VehicleDetailsModal";
 import { Vehicle } from "../lib/types";
-import { Eye } from "lucide-react";
+import { Truck, Navigation, AlertTriangle, ShieldCheck, User, Eye, Layers } from "lucide-react";
+
+type ActiveModule = "MODULE_1" | "MODULE_2" | "MODULE_3" | "DRIVER_PORTAL";
 
 function CommandCenterContent() {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
   const {
     isConnected,
     vehicles,
@@ -26,27 +29,31 @@ function CommandCenterContent() {
     summary
   } = useTelematicsSocket();
 
+  // Active module tab: Drivers default to DRIVER_PORTAL, Admins & Managers default to MODULE_2 (Live Tracking)
+  const [activeModule, setActiveModule] = useState<ActiveModule>(() => {
+    return user?.role === "DRIVER" ? "DRIVER_PORTAL" : "MODULE_2";
+  });
+
   const [inspectingVehicle, setInspectingVehicle] = useState<Vehicle | null>(null);
 
-  // If session state is still restoring from localStorage
   if (isLoading) {
     return (
       <div className="min-h-screen bg-[#070A11] flex flex-col items-center justify-center text-white">
         <div className="relative flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-400 shadow-xl shadow-blue-500/30 animate-pulse mb-4">
-          <Eye className="w-8 h-8 text-white" />
+          <Truck className="w-8 h-8 text-white" />
         </div>
         <p className="text-sm font-semibold tracking-wide text-gray-300">Initializing FleetVisionAI Secure Session...</p>
       </div>
     );
   }
 
-  // If not authenticated, render Login Page
   if (!isAuthenticated) {
     return <LoginPage />;
   }
 
   const handleSelectVehicle = (v: Vehicle) => {
     setSelectedVehicle(v);
+    setInspectingVehicle(v);
   };
 
   const handleSelectAlertVehicle = (vehicleId: string) => {
@@ -63,7 +70,7 @@ function CommandCenterContent() {
 
   return (
     <div className="min-h-screen bg-[#0B0F19] text-gray-100 flex flex-col font-sans">
-      {/* Top Application Header with User Account & Sign Out */}
+      {/* Top Application Header */}
       <Header
         isConnected={isConnected}
         activeAlertsCount={summary.activeAlertsCount}
@@ -75,33 +82,106 @@ function CommandCenterContent() {
         {/* Fleet KPI Metric Cards */}
         <FleetStats summary={summary} />
 
-        {/* Live Tracking Map & Real-Time Incident Stream Row */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-          <div className="lg:col-span-2">
-            <FleetMap
-              vehicles={vehicles}
-              geofences={geofences}
-              selectedVehicle={selectedVehicle}
-              onSelectVehicle={handleSelectVehicle}
-            />
+        {/* 3-MODULE ARCHITECTURE NAVIGATION BAR (Matches Architecture Diagram) */}
+        <div className="bg-gray-900/90 border border-gray-800 rounded-2xl p-2.5 shadow-xl flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-1.5">
+            {/* Module 1 Tab */}
+            <button
+              onClick={() => setActiveModule("MODULE_1")}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                activeModule === "MODULE_1"
+                  ? "bg-blue-600 text-white shadow-lg shadow-blue-600/30"
+                  : "text-gray-400 hover:text-white hover:bg-gray-800"
+              }`}
+            >
+              <Truck className="w-4 h-4" />
+              <span>Module 1: Vehicle & Driver Management</span>
+            </button>
+
+            {/* Module 2 Tab */}
+            <button
+              onClick={() => setActiveModule("MODULE_2")}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                activeModule === "MODULE_2"
+                  ? "bg-cyan-600 text-white shadow-lg shadow-cyan-600/30"
+                  : "text-gray-400 hover:text-white hover:bg-gray-800"
+              }`}
+            >
+              <Navigation className="w-4 h-4" />
+              <span>Module 2: Real-Time Tracking & Trips</span>
+            </button>
+
+            {/* Module 3 Tab */}
+            <button
+              onClick={() => setActiveModule("MODULE_3")}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                activeModule === "MODULE_3"
+                  ? "bg-amber-600 text-white shadow-lg shadow-amber-600/30"
+                  : "text-gray-400 hover:text-white hover:bg-gray-800"
+              }`}
+            >
+              <AlertTriangle className="w-4 h-4" />
+              <span>Module 3: Alerts, Maintenance & Reports</span>
+            </button>
+
+            {/* Driver Portal Tab (Only shown if Driver or Admin) */}
+            {(user?.role === "DRIVER" || user?.role === "ADMIN") && (
+              <button
+                onClick={() => setActiveModule("DRIVER_PORTAL")}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                  activeModule === "DRIVER_PORTAL"
+                    ? "bg-emerald-600 text-white shadow-lg shadow-emerald-600/30"
+                    : "text-gray-400 hover:text-white hover:bg-gray-800"
+                }`}
+              >
+                <User className="w-4 h-4" />
+                <span>Driver Portal</span>
+              </button>
+            )}
           </div>
 
-          <div className="lg:col-span-1">
-            <AlertsFeed
-              alerts={recentEvents}
-              onSelectAlertVehicle={handleSelectAlertVehicle}
-            />
+          {/* User Role Badge */}
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gray-950 border border-gray-800 text-xs">
+            <span className="text-gray-400">Current Role:</span>
+            <span className="font-bold text-cyan-400 font-mono uppercase">{user?.role}</span>
           </div>
         </div>
 
-        {/* VisionAI In-Cabin DMS & Road ADAS Edge Monitor */}
-        <VisionAIDashcam
-          vehicles={vehicles}
-          selectedVehicle={selectedVehicle}
-          recentEvents={recentEvents}
-          onTriggerAiEvent={triggerAiEvent}
-          onSelectVehicle={handleSelectVehicle}
-        />
+        {/* ACTIVE MODULE VIEW CONTAINER */}
+        <div>
+          {/* Module 1: Vehicle & Driver Management */}
+          {activeModule === "MODULE_1" && (
+            <Module1VehicleDriver
+              vehicles={vehicles}
+              onSelectVehicle={handleSelectVehicle}
+            />
+          )}
+
+          {/* Module 2: Real-Time Tracking & Trip Management */}
+          {activeModule === "MODULE_2" && (
+            <Module2TrackingTrips
+              vehicles={vehicles}
+              geofences={geofences}
+              selectedVehicle={selectedVehicle}
+              recentEvents={recentEvents}
+              onSelectVehicle={handleSelectVehicle}
+              onTriggerAiEvent={triggerAiEvent}
+            />
+          )}
+
+          {/* Module 3: Alerts, Maintenance and Reports */}
+          {activeModule === "MODULE_3" && (
+            <Module3AlertsMaintenanceReports
+              alerts={recentEvents}
+              onSelectAlertVehicle={handleSelectAlertVehicle}
+            />
+          )}
+
+          {/* Dedicated Driver Portal */}
+          {activeModule === "DRIVER_PORTAL" && (
+            <DriverPortal vehicles={vehicles} />
+          )}
+        </div>
       </main>
 
       {/* Vehicle Deep Diagnostics Modal */}
